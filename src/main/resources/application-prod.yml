@@ -41,6 +41,7 @@ ac-keno:
 
 #<---------------------- SPRING CONFIGURATION -------------------------->
 spring:
+   feign-token: lcoa
    jackson:
       default-property-inclusion: non_null # Excluir valores nulos en respuestas JSON.
    config:

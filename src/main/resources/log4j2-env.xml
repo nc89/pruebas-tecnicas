@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+
+    <!-- Configuracion para los perfiles diferentes a desarollo -->
+    <SpringProfile name="!dev">
+
+        <!-- LOG la aplicación al nivel WARN -->
+        <AsyncLogger name="com.app.base" level="warn" additivity="false">
+            <AppenderRef ref="OutFile"/>
+            <AppenderRef ref="ApplicationRollingFile"/>
+        </AsyncLogger>
+
+    </SpringProfile>
+
+
+    <!-- Configuración para el perfil de desarrollo -->
+    <SpringProfile name="dev">
+
+        <!-- LOG en la aplicación al nivel DEBUG -->
+        <AsyncLogger name="com.app.base" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="OutFile"/>
+            <AppenderRef ref="ApplicationRollingFile"/>
+        </AsyncLogger>
+
+    </SpringProfile>
+
+</Configuration>

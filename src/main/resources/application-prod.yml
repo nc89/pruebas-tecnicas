@@ -1,0 +1,194 @@
+#<---------------------- SERVER CONFIGURATION ---------------------->
+server:
+  # Puerto del microservicio, definido por variable de entorno.
+   port: ${SERVER_PORT}
+   servlet:
+      context-path: ${SERVER_SERVLET_CONTEXT_PATH}
+      multipart:
+        # Tamaño máximo de archivo permitido en request multipart.
+        max-file-size: 10MB
+        # Límite total del cuerpo del request.
+        max-request-size: 10MB
+#<--------------------------------------------------------------------->
+
+#<---------------------- SPRINGDOC CONFIGURATION ---------------------->
+springdoc:
+     # Ruta pública del Swagger UI.
+   swagger-ui:
+      path: ${SPRINGDOC_SWAGGER_UI_PATH}
+     # Ruta de los documentos OpenAPI.
+   api-docs:
+      path: ${SPRINGDOC_API_DOCS_PATH}
+   api:
+     title: ${SPRINGDOC_API_TITLE}
+     description: ${SPRINGDOC_API_DESCRIPTION}
+     version: ${SPRINGDOC_API_VERSION}
+#<--------------------------------------------------------------------->
+
+#<---------------------- PROPERTIES CONFIGURATION ---------------------->
+ac-keno:
+   path-url:
+     # Contexto privado (para endpoints internos).
+      private: /${SERVER_SERVLET_CONTEXT_PATH_PV}
+     # Contexto público (gateway externo).
+      public: /${SERVER_SERVLET_CONTEXT_PATH_PB}${SERVER_SERVLET_CONTEXT_PATH_PV}
+   # Controla si se usa la capa de persistencia.
+   persistence:
+      enabled: true
+   rules-path:
+      sale: rules/sale/
+#<--------------------------------------------------------------------->
+
+#<---------------------- SPRING CONFIGURATION -------------------------->
+spring:
+   jackson:
+      default-property-inclusion: non_null # Excluir valores nulos en respuestas JSON.
+   config:
+      import:
+        - optional:file:./git.properties  # Importa metadatos de Git.
+   application:
+      name: ${SPRING_APPLICATION_NAME} # Nombre lógico del microservicio.
+
+   datasource:
+      url: ${SPRING_DATASOURCE_URL} # Conexión JDBC.
+      username: ${SPRING_DATASOURCE_USERNAME}
+      password: ${SPRING_DATASOURCE_PASSWORD}
+      driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME}
+
+   jpa:
+      properties:
+         hibernate:
+            default_schema: ${SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA} # Esquema Oracle.
+#            jdbc:
+#              batch_size: ${SPRING_JPA_HIBERNATE_JDBC_BATCH_SIZE} # Batch inserts/updates (mejora rendimiento).
+#              batch_versioned_data: true
+#            order_inserts: true
+#            order_updates: true
+#            generate_statistics: false
+#         jdbc:
+#            lob:
+#               non-contextual-creation: ${SPRING_JPA_PROPERTIES_JDBC_LOB_NON_CONTEXTUAL_CREATION}
+#      generate-ddl: ${SPRING_JPA_GENERATE_DDL}
+#      show-sql: ${SPRING_JPA_SHOW_SQL}
+#      hibernate:
+#         ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
+#      database-platform: ${SPRING_JPA_DATABASE_PLATFORM}
+#<--------------------------------------------------------------------->
+
+#<---------------------- SPRING CLOUD CONFIGURATION ---------------------->
+   feign:
+      client:
+         config:
+            default:
+              # configuracion por defecto para todos los clientes feign
+               connect-timeout: ${SPRING_FEIGN_CLIENT_CONFIG_DEFAULT_CONNECT_TIMEOUT}
+              # timeout de lectura, se puede configurar por cliente
+               read-timeout: ${SPRING_FEIGN_CLIENT_CONFIG_DEFAULT_READ_TIMEOUT}
+              # nivel de logger NONE, BASIC, HEADERS, FULL
+               logger-level: ${SPRING_FEIGN_CLIENT_CONFIG_DEFAULT_LOGGER_LEVEL}
+#<--------------------------------------------------------------------->
+
+#<---------------------- MONITORING & LOGGING CONFIGURATION ---------------------->
+management:
+  endpoints.web.base-path: ${MANAGEMENT_SERVER_BASE_PATH}  # Ruta base para /actuator.
+  endpoints:
+    web:
+      exposure:
+        include: "metrics,health,info" # Expone todos los endpoints de Actuator
+  endpoint:
+    health:
+      show-details: "always" # Muestra detalles de salud
+    shutdown:
+      enabled: false  # Permite apagar la aplicación con /actuator/shutdown
+    info:
+      enabled: true
+  info:
+    env:
+      enabled: true
+    git:
+      enabled: false
+#<--------------------------------------------------------------------->
+
+#<---------------------- CUSTOM METADATA CONFIGURATION ---------------------->
+info:
+  app:
+    name: ${SPRING_APPLICATION_NAME}
+    version: ${SPRINGDOC_API_VERSION}  # Últimos 7 caracteres del commit
+  git:
+    full-version: ${git.commit.id}    # Hash completo del commit
+    branch: ${git.branch}             # Nombre de la rama actual
+#<--------------------------------------------------------------------->
+
+#<---------------------- ADDITIONAL CONFIGURATION ---------------------->
+# Configuración de Prometheus para exportación de métricas.
+prometheus:
+   metrics:
+      export:
+         enabled: ${PROMETHEUS_METRICS_EXPORT_ENABLED}  # Habilita exportación de métricas.
+#<--------------------------------------------------------------------->
+
+#<---------------------- ADDITIONAL CONFIGURATION ---------------------->
+# Configuración de formatos de fecha y hora en Spring MVC.
+request-mapping:
+   mvc:
+      format:
+         date: ${REQUEST_MAPPING_MVC_FORMAT_DATE}
+         date-time: ${REQUEST_MAPPING_MVC_FORMAT_DATE_TIME}
+         time: ${REQUEST_MAPPING_MVC_FORMAT_TIME}
+#<--------------------------------------------------------------------->
+
+#<---------------------- LOG4J2 CONFIGURATION ---------------------->
+log4j:
+   configuration-file: ${LOG4J_CONFIGURATION_FILE} # Usa log4j2 externos (env + spring).
+#<--------------------------------------------------------------------->
+
+#<---------------------- CUSTOM SERVICE CONFIGURATION ---------------------->
+# Configuración de URLs de servicios externos.
+url:
+  reporte-transaccion-client: ${GATEWAY_SIVEMTX_PATH}/SivemTxWS/rest/  # Endpoint Feign hacia SivemTx.
+  estructura-comercial-client: ${GATEWAY_ADMIN_PATH}/api/v1/estructura-comercial # Endpoint Feign hacia Estructura Comercial.
+  scj-client: ${GATEWAY_SCJ_PATH}/scj/api/v1/ # Endpoint Feign hacia SCJ.
+
+#<--------------------------------------------------------------------->
+
+#<---------------------- AUDIT CONFIGURATION ---------------------->
+service:
+  audit:
+    enable: ${SERVICE_AUDIT_ENABLE}
+#<--------------------------------------------------------------------->
+
+#<---------------------- SECURITY CONFIGURATION ---------------------->
+security:
+# Activa/desactiva la obligatoriedad de la validación de la seguridad
+   enabled: ${SECURITY_ENABLED}
+   
+
+   privileges:
+      enabled: ${SECURITY_PRIVILEGES_ENABLED}
+      always-allow:
+         get:
+         - /${SERVER_SERVLET_CONTEXT_PATH_PV}/swagger-ui/**
+         - /${SERVER_SERVLET_CONTEXT_PATH_PV}/actuator/**
+         - /${SERVER_SERVLET_CONTEXT_PATH_PV}/api-docs/**
+         - /${SERVER_SERVLET_CONTEXT_PATH_PB}${SERVER_SERVLET_CONTEXT_PATH_PV}/**
+      rules:
+         rule-default:
+            name: default
+            http-methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            matchers:
+            - /**
+#<--------------------------------------------------------------------->
+
+logging.level.org.springframework.aop: DEBUG
+logging.level.com.app.base.application.commons.aspects: DEBUG
+
+logging:
+  level:
+    org.springframework.cloud.aws.messaging.listener: DEBUG
+    com.pagatodo: DEBUG
+    feign: DEBUG
+    org.springframework.cloud.openfeign: DEBUG

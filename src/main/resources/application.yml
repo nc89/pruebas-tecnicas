@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    active: ${SPRING_CONFIG_ACTIVATE_ON_PROFILE}
+
+# Configuración de API con variable de entorno
+api:
+  base:
+    path: ${API_BASE_PATH:/api/v1}  # Variable de entorno con valor por defecto
